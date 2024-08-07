@@ -1,0 +1,176 @@
+//  4WD Omnidireccional Evasor de Obstaculos
+#include <SoftwareSerial.h>
+//  Declaración de pina RX y TX
+#define RX_PIN A0
+#define TX_PIN A1
+SoftwareSerial BTSerial(RX_PIN, TX_PIN);
+//  Libreria para la tarjeta de expansion de motores
+#include <AFMotor.h>
+AF_DCMotor motor1(1);
+AF_DCMotor motor2(2);
+AF_DCMotor motor3(3);
+AF_DCMotor motor4(4);
+//  Declaración de sensores de línea
+int sd = A2;
+int si = A3;
+//  Declaración de sensor ultrasonico
+int echo = A4;
+int triger = A5;
+//  Velocidad de las ruedas
+int vel=200;
+//  Variables de almacenamiento
+char valorBoton;
+char penultimo = 's'; 
+char antepenultimo = 's'; 
+char v='s';
+void setup()
+{
+  BTSerial.begin(9600);
+  motor1.setSpeed(vel);
+  motor2.setSpeed(vel);
+  motor3.setSpeed(vel);
+  motor4.setSpeed(vel);
+  pinMode(sd,INPUT);
+  pinMode(si,INPUT);
+  pinMode(echo,INPUT);
+  pinMode(triger,OUTPUT);
+  digitalWrite(triger,LOW);
+}
+void loop()
+{
+  if(distancia()>= 20)
+  {
+  adelante(); 
+  }
+  else if(distancia()<= 20){
+  alto();
+  delay(500);
+  atras();
+  delay(500);
+  der();
+  delay(700);
+  rder();
+  delay(500);
+  if(distancia()<= 20){
+    rder();
+    delay(500);
+    }
+    else
+   {
+    adelante();
+    } 
+  }
+  else if(distancia()>= 20){
+  adelante();  
+  }
+}
+long distancia()
+{
+  long t;
+  long d;
+  digitalWrite(triger,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triger,LOW);
+  t=pulseIn(echo,HIGH);
+  d=t/59;
+  delay(10);
+  return d;
+}
+void adelante()//adelante 
+{
+  motor1.run(FORWARD);
+  motor2.run(FORWARD);
+  motor3.run(FORWARD);
+  motor4.run(FORWARD);
+}
+void atras()//atras
+{
+  motor1.run(BACKWARD);
+  motor2.run(BACKWARD);
+  motor3.run(BACKWARD);
+  motor4.run(BACKWARD);
+}
+void izq() //Lateral izquierda
+{
+  motor1.run(BACKWARD);
+  motor2.run(FORWARD);
+  motor3.run(BACKWARD);
+  motor4.run(FORWARD);
+}
+void der()  //Lateral derecha
+{
+  motor1.run(FORWARD);
+  motor2.run(BACKWARD);
+  motor3.run(FORWARD);
+  motor4.run(BACKWARD);
+}
+void ddu() { // Diagonal Derecha Superior
+  motor1.run(FORWARD);
+  motor2.run(RELEASE);
+  motor3.run(FORWARD);
+  motor4.run(RELEASE);
+}
+void ddd() { // Diagonal Derecha Inferior
+  motor1.run(RELEASE);
+  motor2.run(BACKWARD);
+  motor3.run(RELEASE);
+  motor4.run(BACKWARD);
+}
+void diu() { //Diagonal Izquierda Superior
+  motor1.run(RELEASE);
+  motor2.run(FORWARD);
+  motor3.run(RELEASE);
+  motor4.run(FORWARD);
+}
+
+void did() { //Diagonal Izquierda Inferior
+  motor1.run(BACKWARD);
+  motor2.run(RELEASE);
+  motor3.run(BACKWARD);
+  motor4.run(RELEASE);
+}
+void gizq()  //Giro a la izquierda adelante
+{
+  motor1.run(FORWARD);
+  motor2.run(FORWARD);
+  motor3.run(RELEASE);
+  motor4.run(RELEASE);
+}
+void gder()  //Giro a la derecha adelante
+{
+  motor1.run(RELEASE);
+  motor2.run(RELEASE);
+  motor3.run(FORWARD);
+  motor4.run(FORWARD);
+}
+void aizq() { //Giro a la derecha atras
+  motor1.run(BACKWARD);
+  motor2.run(BACKWARD);
+  motor3.run(RELEASE);
+  motor4.run(RELEASE);
+}
+void ader() { //Giro a la derecha atras
+  motor1.run(RELEASE);
+  motor2.run(RELEASE);
+  motor3.run(BACKWARD);
+  motor4.run(BACKWARD);
+}
+void rder() { //rotacion a la derecha
+  motor1.run(BACKWARD);
+  motor2.run(BACKWARD);
+  motor3.run(FORWARD);
+  motor4.run(FORWARD);
+}
+void rizq() { //rotacion a la izquierda
+  motor1.run(FORWARD);
+  motor2.run(FORWARD);
+  motor3.run(BACKWARD);
+  motor4.run(BACKWARD);
+}
+void alto() //Paro total
+{
+  motor1.run(RELEASE);
+  motor2.run(RELEASE);
+  motor3.run(RELEASE);
+  motor4.run(RELEASE);
+}

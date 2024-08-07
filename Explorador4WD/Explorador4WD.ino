@@ -1,0 +1,151 @@
+//Evasor de Obstaculos 4WD
+#include <Servo.h>
+
+Servo servo;
+
+int motA0=10; // Pines para control de motores
+int motA1=11;
+int motB0=9;
+int motB1=8;
+
+int pservo=12; 
+int echo=2;//Sensor de obstaculos 
+int triger=3;
+
+int dir, disizq, discen, disder, sentido;
+
+void setup() 
+{
+ Serial.begin(9600);
+ pinMode(motA0, OUTPUT);
+ pinMode(motA1, OUTPUT);
+ pinMode(motB0, OUTPUT);
+ pinMode(motB1, OUTPUT);
+
+ pinMode(pservo, OUTPUT);
+ 
+ pinMode(echo,INPUT);
+ pinMode(triger,OUTPUT);
+
+ digitalWrite(motA0, LOW);
+ digitalWrite(motA1, LOW);
+ digitalWrite(motB0, LOW);
+ digitalWrite(motB1, LOW);
+
+ digitalWrite(pservo, LOW);
+
+ servo.attach(12);
+ servo.write(98);
+}
+
+void loop() 
+{
+  int distanceR = 0;
+  int distanceL = 0;
+
+  if(distancia() <= 25)
+  {
+    alto();
+    delay(200);
+    distanceR = mirarDerecha();
+    delay(200);
+    distanceL = mirarIzquierda();
+    delay(200);
+    if(distanceR <= 25 && distancia() <= 25 && distanceL <= 25){
+      atras();
+      delay(800);
+      izquierda();
+      delay(600);
+    }
+    else if(distanceR >= distanceL){
+      derecha();
+      delay(600);
+      alto();
+    }
+    else if(distanceR <= distanceL)
+    {
+      izquierda();
+      delay(600);
+      alto();
+    }
+  }
+  else
+  {
+    adelante();
+  }
+}
+
+void adelante()
+{
+  digitalWrite(motA0, HIGH);
+  digitalWrite(motA1, LOW);
+  digitalWrite(motB0, HIGH);
+  digitalWrite(motB1, LOW);
+}
+
+void atras()
+{
+  digitalWrite(motA0, LOW);
+  digitalWrite(motA1, HIGH);
+  digitalWrite(motB0, LOW);
+  digitalWrite(motB1, HIGH);
+}
+
+void izquierda()  //Giro a la izquierda
+{
+  digitalWrite(motA0,HIGH); 
+  digitalWrite(motA1,LOW);
+  digitalWrite(motB0,LOW);
+  digitalWrite(motB1,HIGH);
+}
+
+void derecha()  //Giro a la derecha
+{
+  digitalWrite(motA0,LOW); 
+  digitalWrite(motA1,HIGH);
+  digitalWrite(motB0,HIGH);
+  digitalWrite(motB1,LOW);
+}
+
+void alto() //Paro total
+{
+  digitalWrite(motA0,HIGH);
+  digitalWrite(motA1,HIGH);
+  digitalWrite(motB0,HIGH);
+  digitalWrite(motB1,HIGH);
+}
+
+long mirarDerecha()
+{
+  servo.write(50);
+  delay(500);
+  int distance = distancia();
+  delay(200);
+  servo.write(98);
+  return distance;
+}
+
+long mirarIzquierda()
+{
+  servo.write(150);
+  delay(500);
+  int distance = distancia();
+  delay(200);
+  servo.write(98);
+  return distance;
+}
+
+long distancia()  //Medicion de distancia
+{
+  long t;
+  long d;
+  digitalWrite(triger, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triger, LOW);
+  
+  t = pulseIn(echo, HIGH);
+  d = t/59;
+             
+  delay(10);
+  return d;
+}
